@@ -4,6 +4,7 @@ author: "Shona Lamoureaux"
 date: today
 date-format: DD MMMM YYYY
 format: html
+code-fold: true
 editor: visual
 Theme: flatly
 smooth-scroll: true
@@ -12,19 +13,42 @@ toc-location: left
 embed-resources: true
 ---
 
-## Quarto
+## Plots with ggplot2
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+How to make plots in R using ggplot 2
 
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+### Let's load the packages we will be using
 
 ```{r}
-1 + 1
+#| label: load packages
+#| output: false
+library(tidyverse)
+library(readxl)
+library(here)
 ```
 
-You can add options to executable code like this
+The `output: false` option disables the printing of output messages but the code is still displayed.
+
+### Now let's load the data we will use 1st
+
+```{r}
+#| label: load np data
+#| output: false
+ca_np <- read_csv(here("data", "ca_np.csv"))
+names(ca_np)
+head(ca_np)
+summary(ca_np)
+ci_np <- read_excel(here("data", "ci_np.xlsx"))
+names(ci_np)
+head(ci_np)
+summary(ci_np)
+```
+
+### The first ggplot graph: Visitors to Channel Islands National Park
+
+```{r}
+#| label: Plot CI data
+```
 
 ```{r}
 #| echo: false
