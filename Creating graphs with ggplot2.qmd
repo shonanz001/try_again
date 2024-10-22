@@ -4,7 +4,7 @@ author: "Shona Lamoureaux"
 date: today
 date-format: DD MMMM YYYY
 format: html
-code-fold: true
+code-fold: false
 editor: visual
 Theme: flatly
 smooth-scroll: true
@@ -27,28 +27,141 @@ library(readxl)
 library(here)
 ```
 
-The `output: false` option disables the printing of output messages but the code is still displayed.
+#### Notes
 
-### Now let's load the data we will use 1st
+-   To keep the `tidyverse` manageable, there are “core” packages (`readr`, `dplyr`, `tidyr`, `ggplot2`, `forcats`, `purrr`, `tibble`, `stringr`) that you would expect to use frequently, and those are automatically attached when you use `library(tidyverse)`. But there are *also* more specialized `tidyverse` packages (e.g. `readxl`, `reprex`, `lubridate`, `rvest`) that are built with similar design philosophy, but are not automatically attached with `library(tidyverse)`. Those specialized packages are **installed** along with the `tidyverse`, but need to be **attached** individually (e.g. with `library(readxl)`).
+
+-   The `output: false` option disables the printing of output messages but the code is still displayed.
+
+### Now let's load the data we will use 1st and have a look at what the data looks like:
 
 ```{r}
 #| label: load np data
 #| output: false
 ca_np <- read_csv(here("data", "ca_np.csv"))
-names(ca_np)
-head(ca_np)
-summary(ca_np)
+  view(ca_np)
+  names(ca_np)
+  head(ca_np)
+  summary(ca_np)
 ci_np <- read_excel(here("data", "ci_np.xlsx"))
-names(ci_np)
-head(ci_np)
-summary(ci_np)
+  view(ci_np)
+  names(ci_np)
+  head(ci_np)
+  summary(ci_np)
 ```
 
 ### The first ggplot graph: Visitors to Channel Islands National Park
 
+Generally, that structure will look like this:
+
+`ggplot(data = df_name, aes(x = x_var_name, y = y_var_name)) + geom_type()`
+
+Breaking that down:
+
+-   First, tell R you’re using `ggplot()`
+
+-   Then, tell it the object name where variables exist (`data = df_name`)
+
+-   Next, tell it the aesthetics `aes()` to specify which variables you want to plot
+
+-   Then add a layer for the type of geom (graph type) with `geom_*()` - for example, `geom_point()` is a scatterplot, `geom_line()` is a line graph, `geom_col()` is a column graph, etc.
+
 ```{r}
 #| label: Plot CI data
+ggplot(data = ci_np, aes(x = year, y = visitors)) + geom_line()
 ```
+
+If you are going to make a lot of variations with the same variables, it is worth storing part of the above as an object so you don't have to retype or copy/paste each time. Here we are storing it as `gg_ci_base`:
+
+```{r}
+
+gg_ci_base <- ggplot(data=ci_np, aes(x = year, y = visitors))
+```
+
+Now we can change the plot style just by updating the `geom_*`:
+
+```{r}
+gg_ci_base + geom_point()
+```
+
+```{r}
+gg_ci_base + geom_col()
+```
+
+```{r}
+gg_ci_base + geom_area()
+```
+
+Now let's look at cusomising the base graphs by using aesthetic arguments within the layer where the element was created. Some common argument are:
+
+-   `color =` or `colour =`: update point or line colors
+
+-   `fill =`: update fill color for objects with areas
+
+-   `linetype =`: update the line type (dashed, long dash, etc.)
+
+-   `pch =`: update the point style
+
+-   `size =`: update the element size (e.g. of points or line thickness)
+
+-   `alpha =`: update element opacity (1 = opaque, 0 = transparent)
+
+```{r}
+gg_ci_base + geom_line(colour = "purple", linetype = "dashed")
+```
+
+Note that you have to have "" around the element style!
+
+How do we know which color names ggplot will recognize? If you google “R colors ggplot2” you’ll find a lot of good resources. Here’s one: [SAPE ggplot2 colors quick reference guide](http://sape.inf.usi.ch/quick-reference/ggplot2/colour)
+
+Now let’s update the point, style and size of points on our previous scatterplot graph using `color =`, `size =`, and `pch =` (see `?pch` for the different point styles, which can be further customized).
+
+![Most common \`pch\` values used in R](pch.png){fig-align="left"}
+
+```{r}
+gg_ci_base + geom_point(colour = "darkgreen", pch = 17, size = 4, alpha = 0.5)
+```
+
+Now lets attach aesthetics to variable. E.g., having the size or colour of the point depend on the the variable character or value. This is done by adding the argument inside `aes()`
+
+```{r}
+gg_ci_base + geom_point(aes (size = visitors), color = "red",pch = 16, alpha = 0.5)
+```
+
+```{r}
+gg_ci_base + geom_point(aes (colour = visitors), size = 4, pch = 16, alpha = 0.5)
+```
+
+```{r}
+gg_ci_base + geom_point(aes (size = visitors, colour = visitors), pch = 15, alpha = 0.5)
+```
+
+```{r}
+gg_ci_base + geom_col(aes (fill = visitors), color = "yellow")
+```
+
+## GGplot2 themes 
+
+While every element of a ggplot graph is manually customizable, there are also built-in themes (`theme_*()`) that you can add to your ggplot code to make some major headway before making smaller tweaks manually. Here are a few to try today (but also notice all the options that appear as we start typing `theme_` into our ggplot graph code!):
+
+-   `theme_light()`
+-   `theme_minimal()`
+-   `theme_bw()`
+
+```{r}
+gg_ci_base + geom_point(aes (size = visitors, colour = visitors), alpha = 0.5) + theme_light()
+```
+
+## Changing axis labels and titles
+
+Use `labs()` to update axis labels, and add a title and/or subtitle to your ggplot graph.
+
+```{r}
+
+gg_ci_base + geom_line(linetype = "dotted") + theme_bw() + labs(x = "Year", y = "Annual park visitors", title = "Channel Islands NP Visitation", subtitle = "(1963 - 2016)")
+
+```
+
 
 ```{r}
 #| echo: false
